@@ -13,12 +13,14 @@ create table rajar.replist_temp as (select file_quarter,
                                           (select distinct file_quarter
                                            from rajar.rajar_quarters
                                            where in_data = 'Yes'));
+grant all on rajar.replist_temp to group rajar_users;
 
 drop table if exists rajar.segs_temp;
 create table rajar.segs_temp as (select file_quarter, segment, station_code
                                  from rajar.rajar_segs
                                  where file_quarter not in
                                        (select distinct file_quarter from rajar.rajar_quarters where in_data = 'Yes'));
+grant all on rajar.segs_temp to group rajar_users;
 
 drop table if exists rajar.postal_temp;
 create table rajar.postal_temp as (select file_quarter, sample_point, segment
@@ -27,19 +29,21 @@ create table rajar.postal_temp as (select file_quarter, sample_point, segment
                                          (select distinct file_quarter
                                           from rajar.rajar_quarters
                                           where in_data = 'Yes'));
+grant all on rajar.postal_temp to group rajar_users;
 
 drop table if exists rajar.listening_temp;
 create table rajar.listening_temp as (select *
                                       from rajar.rajar_listening
                                       where file_quarter not in
                                           (select distinct file_quarter from rajar.rajar_quarters where in_data = 'Yes'));
-
+grant all on rajar.listening_temp to group rajar_users;
 
 drop table if exists rajar.individuals_temp;
 create table rajar.individuals_temp as (select file_quarter, respid, sample_point, age_15plus, sex, age
                                         from rajar.rajar_individuals
                                         where file_quarter not in
                                           (select distinct file_quarter from rajar.rajar_quarters where in_data = 'Yes'));
+grant all on rajar.individuals_temp to group rajar_users;
 
 drop table if exists rajar.weights_temp;
 create table rajar.weights_temp as (select file_quarter, respid, reporting_period, weight
@@ -47,6 +51,7 @@ create table rajar.weights_temp as (select file_quarter, respid, reporting_perio
                                     where weight is not null
                                     and file_quarter not in
                                           (select distinct file_quarter from rajar.rajar_quarters where in_data = 'Yes'));
+grant all on rajar.weights_temp to group rajar_users;
 
 drop table if exists rajar.listen_w_ages;
 create table rajar.listen_w_ages as (select listening.*,
@@ -59,7 +64,7 @@ create table rajar.listen_w_ages as (select listening.*,
                                                         on listening.respid = individuals.respid and
                                                            listening.file_quarter =
                                                            individuals.file_quarter);
-
+grant all on rajar.listen_w_ages to group rajar_users;
 
 drop table if exists rajar.metadata_no_weights;
 create table rajar.metadata_no_weights as (select distinct replist.file_quarter,
@@ -80,6 +85,7 @@ create table rajar.metadata_no_weights as (select distinct replist.file_quarter,
                                                               on segs.segment = postal_sector.segment and
                                                                  segs.file_quarter =
                                                                  postal_sector.file_quarter);
+grant all on rajar.metadata_no_weights to group rajar_users;
 
 delete from rajar.first_summary where file_quarter in (select distinct file_quarter from rajar.replist_temp);
 insert into  rajar.first_summary select a.file_quarter,
@@ -120,6 +126,7 @@ insert into  rajar.first_summary select a.file_quarter,
                                                         on left(a.respid, 16) = house.hhid and
                                                            a.file_quarter = house.file_quarter
                                      where weight is not null;
+grant all on rajar.first_summary to group rajar_users;
 
 delete from rajar.summary_table_1 where quarter in (select distinct file_quarter from rajar.replist_temp);
 insert into rajar.summary_table_1 with listens as (select file_quarter as quarter,
@@ -281,7 +288,7 @@ insert into rajar.summary_table_1 with listens as (select file_quarter as quarte
                                        union all
                                        select *
                                        from seg;
-
+grant all on rajar.summary_table_1 to group rajar_users;
 grant all on rajar.summary_table_1 to jasmine_breeze;
 grant all on rajar.summary_table_1 to samuel_sanyaolu;
 grant all on rajar.summary_table_1 to jonathan_roussot;
@@ -314,6 +321,7 @@ insert into rajar.summary_table_2 with listens as (select file_quarter     as qu
                                               round((time_per_account - numerical_hours_account) * 60) as numerical_minutes_account
                                        from listens
                                        group by 1, 2, 3, 4, 5, 6;
+grant all on rajar.summary_table_2 to group rajar_users;
 grant all on rajar.summary_table_2 to jasmine_breeze;
 grant all on rajar.summary_table_2 to samuel_sanyaolu;
 grant all on rajar.summary_table_2 to jonathan_roussot;
@@ -370,6 +378,9 @@ insert into rajar.second_summary select a.file_quarter,
                                                                                                                      then '04:00'
                                                                                                                  else a.hhmm_end end
                                       where weight is not null;
+grant all on rajar.second_summary to group rajar_users;
+grant all on radio1_sandbox.af_rajar_slots to group rajar_users;
+grant all on radio1_sandbox.af_rajar_slots to rajar_loader;
 grant all on rajar.second_summary to jasmine_breeze;
 grant all on rajar.second_summary to samuel_sanyaolu;
 grant all on rajar.second_summary to jonathan_roussot;
@@ -385,22 +396,31 @@ insert into rajar.rajar_population select rw.file_quarter,
                                                  inner join rajar.rajar_individuals ri
                                                             on ri.respid = rw.respid and ri.file_quarter = rw.file_quarter
                                         group by 1, 2;
+grant all on rajar.rajar_population to group rajar_users;
+grant all on rajar.rajar_population to rajar_loader;
+grant all on rajar.rajar_population to jasmine_breeze;
+grant all on rajar.rajar_population to samuel_sanyaolu;
+grant all on rajar.rajar_population to jonathan_roussot;
 
---- RUN THIS ON RAJAR DAY ---
+/*--- RUN THIS ON RAJAR DAY ---
 delete from central_insights_sandbox.af_rajar_table_1 where quarter in (select distinct quarter from rajar.summary_table_1);
 insert into central_insights_sandbox.af_rajar_table_1 select * from rajar.summary_table_1;
+grant all on central_insights_sandbox.af_rajar_table_1 to group rajar_users;
 grant all on central_insights_sandbox.af_rajar_table_1 to jasmine_breeze;
 grant all on central_insights_sandbox.af_rajar_table_1 to samuel_sanyaolu;
 grant all on central_insights_sandbox.af_rajar_table_1 to jonathan_roussot;
 
 delete from central_insights_sandbox.af_rajar_table_2 where quarter in (select distinct summary_table_2.quarter from rajar.summary_table_2);
 insert into central_insights_sandbox.af_rajar_table_2 select * from rajar.summary_table_2;
+grant all on central_insights_sandbox.af_rajar_table_2 to group rajar_users;
 grant all on central_insights_sandbox.af_rajar_table_2 to jasmine_breeze;
 grant all on central_insights_sandbox.af_rajar_table_2 to samuel_sanyaolu;
 grant all on central_insights_sandbox.af_rajar_table_2 to jonathan_roussot;
 
 delete from central_insights_sandbox.rajar_population where file_quarter in (select distinct file_quarter from rajar.rajar_population);
 insert into central_insights_sandbox.rajar_population select * from rajar.rajar_population;
+grant all on central_insights_sandbox.rajar_population to group rajar_users;
 grant all on central_insights_sandbox.rajar_population to jasmine_breeze;
 grant all on central_insights_sandbox.rajar_population to samuel_sanyaolu;
 grant all on central_insights_sandbox.rajar_population to jonathan_roussot;
+*/
