@@ -93,7 +93,7 @@ create table rajar.metadata_no_weights as (select distinct replist.file_quarter,
                                                                  postal_sector.file_quarter);
 grant all on rajar.metadata_no_weights to group rajar_users;
 
-drop table if exists rajar.metadata_no_weights;
+drop table if exists rajar.first_summary;
 create table rajar.first_summary as (select a.file_quarter,
                                             a.respid,
                                             a.dayofweek,
@@ -400,7 +400,6 @@ grant all on rajar.second_summary to jasmine_breeze;
 grant all on rajar.second_summary to samuel_sanyaolu;
 grant all on rajar.second_summary to jonathan_roussot;
 
-
 delete
 from rajar.rajar_population
 where file_quarter in (select distinct file_quarter from rajar.replist_temp);
@@ -409,11 +408,12 @@ select rw.file_quarter,
        reporting_period,
        count(distinct rw.respid)                as sample_size,
        sum(weight) * 1000                       as weight_total,
-       sum(case when age >= 15 then weight end) as weight_a15
+       sum(case when age >= 15 then weight end) as weight_a15,
+       age
 from rajar.rajar_weights rw
          inner join rajar.rajar_individuals ri
                     on ri.respid = rw.respid and ri.file_quarter = rw.file_quarter
-group by 1, 2;
+group by 1, 2, 6 ;
 grant all on rajar.rajar_population to group rajar_users;
 grant all on rajar.rajar_population to rajar_loader;
 grant all on rajar.rajar_population to jasmine_breeze;
