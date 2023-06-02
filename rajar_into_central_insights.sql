@@ -13,6 +13,7 @@ grant all on central_insights_sandbox.af_rajar_table_1 to jasmine_breeze;
 grant all on central_insights_sandbox.af_rajar_table_1 to samuel_sanyaolu;
 grant all on central_insights_sandbox.af_rajar_table_1 to jonathan_roussot;
 grant all on central_insights_sandbox.af_rajar_table_1 to matthew_byrne;
+grant all on central_insights_sandbox.af_rajar_table_1 to audiences_reporting_analytics;
 
 
 
@@ -28,6 +29,7 @@ grant all on central_insights_sandbox.af_rajar_table_2 to jasmine_breeze;
 grant all on central_insights_sandbox.af_rajar_table_2 to samuel_sanyaolu;
 grant all on central_insights_sandbox.af_rajar_table_2 to jonathan_roussot;
 grant all on central_insights_sandbox.af_rajar_table_2 to matthew_byrne;
+grant all on central_insights_sandbox.af_rajar_table_1 to audiences_reporting_analytics;
 
 delete
 from central_insights_sandbox.rajar_population
@@ -40,4 +42,5 @@ grant all on central_insights_sandbox.rajar_population to jasmine_breeze;
 grant all on central_insights_sandbox.rajar_population to samuel_sanyaolu;
 grant all on central_insights_sandbox.rajar_population to jonathan_roussot;
 grant all on central_insights_sandbox.rajar_population to matthew_byrne;
+grant all on central_insights_sandbox.af_rajar_table_1 to audiences_reporting_analytics;
 ;
